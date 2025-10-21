@@ -2,60 +2,59 @@
 
 if (isset($_REQUEST["studente"])) {
     $studente = $_REQUEST['studente'];
-}
+} else { $studente = ""; }
+
 if (isset($_REQUEST["classe"])) {
     $classe = $_REQUEST['classe'];
-}
+} else { $classe = ""; }
+
 if (isset($_REQUEST["materia"])) {
     $materia = $_REQUEST['materia'];
-}
-if (isset($_REQUEST["campo"])) {
-    $campo= $_POST["campo"];
-}
-if (isset($_REQUEST["somma"])){
-    $somma = $_REQUEST["somma"];
-}
+} else { $materia = ""; }
+
+if(isset($_REQUEST["scelta"])){
+    $scelta=$_REQUEST["scelta"];
+} else { $scelta = ""; }
 
 $sommavoti=0;
 $nvoti=0;
 $separatori=",";
+$sommam=0;
+$nmedia=0;
+$arraymat = [];
 $file = fopen('random-grades.csv', 'r');
 
 if($file){
 
-    while( ($line=fgets($file)) !== false ){
-        $campo=explode($separatori,$line);
-        $rigaat=true;
-        if($studente != "" ){
-            if($campo[1] != $studente )
-                $rigaat=false;
-        }
-        if($classe != ""){
-            if($campo[2] != $classe )
-                $rigaat=false;
-        }
-        if( $materia != ""){
-            if($campo[3] != $materia){
-                $rigaat=false;
+    if($scelta=="studente") {
+        while (($line = fgets($file)) !== false) {
+            $campo = explode($separatori, $line);
+
+            if ($studente != "" && $materia != "") {
+                if ($studente == $campo[1] && $materia == $campo[3]) {
+                    $sommam = $sommam + $campo[5];
+                    $nmedia++;
+                    $arraymat[] = $campo[5];
+                }
             }
         }
-        if($rigaat){
-            $voto=$campo[5];
-            $sommavoti=$sommavoti+$voto;
-            $nvoti++;
-        }
     }
+
     fclose($file);
 }else{
     echo "file non aperto";
 }
-if($sommavoti>0) {
-    $media = $sommavoti / $nvoti;
-    echo "la media è ", $media;
+
+if($sommam>0) {
+    $mediag = $sommam / $nmedia;
+    echo "la media generale è ", $mediag, "<br>";
+    echo "invece la media delle altre materie è:<br>";
+    for($i=0; $i<count($arraymat); $i++){
+        echo $arraymat[$i], "<br>";
+    }
 }
 
 ?>
-
 
 <!DOCTYPE html>
 <html>
@@ -66,21 +65,35 @@ if($sommavoti>0) {
 <h1>Benvenuto!</h1>
 <p>Questo è il corpo della mia pagina web. inserire nome studente, classe e materia</p>
 
-<form method="request" action="esercitazione.php">
+<form method="get" action="esercitazione.php">
 
-    <input type="text" name="studente"
-    <br>
+    Studente: <input type="text" name="studente" /> <br><br>
+    Classe: <input type="text" name="classe" /><br><br>
+    Materia: <input type="text" name="materia" /><br><br>
 
-    <br>
+    <input type="radio" id="studente" name="scelta" value="studente"/>
+    <label for="studente">scegli studente</label><br>
 
-    <input type="text" name="classe">
+    <input type="radio" id="classe" name="scelta" value="classe"/>
+    <label for="classe">scegli classe</label><br>
 
-    <br>
+    <input type="radio" id="materia" name="scelta" value="materia"/>
+    <label for="materia">scegli materia</label><br><br>
 
-    <input type="text" name="materia">
     <input type="submit" value="inserisci valori">
+
 </form>
+
+<!-- Link semplici per inserire/modificare/cancellare voti -->
+<a href="inserisci.php">Inserisci nuova valutazione</a><br>
+<a href="modifica.php">Modifica valutazione</a><br>
+<a href="cancella.php">Cancella valutazione</a><br>
+
+<a href="inserisci.php">Inserisci nuova valutazione</a><br>
+<a href="modifica.php">Modifica valutazione</a><br>
+<a href="cancella.php">Cancella valutazione</a><br>
 
 
 </body>
 </html>
+
